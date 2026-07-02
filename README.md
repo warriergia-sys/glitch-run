@@ -1,4 +1,4 @@
-### GLITCH RUN
+**## GLITCH RUN**
 
 A browser-based arcade game built with **HTML, CSS, and JavaScript**.
 
