@@ -1,0 +1,99 @@
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.game-container {
+    text-align: center;
+}
+
+#score-board {
+    font-size: 24px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#glitch-warning {
+    font-size: 18px;
+    color: #00ffcc;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+#game-box {
+    width: 600px;
+    height: 250px;
+    border: 4px solid #ffffff;
+    position: relative;
+    overflow: hidden;
+    background-color: #111111;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+#player {
+    width: 30px;
+    height: 30px;
+    background-color: #00ffcc;
+    position: absolute;
+    bottom: 0;
+    left: 50px;
+}
+
+/* The standard jump animation */
+.jump {
+    animation: jumpAnimation 0.5s linear;
+}
+
+@keyframes jumpAnimation {
+    0% { bottom: 0; }
+    50% { bottom: 100px; }
+    100% { bottom: 0; }
+}
+
+#obstacle {
+    width: 25px;
+    height: 40px;
+    background-color: #ff0055;
+    position: absolute;
+    bottom: 0;
+    left: 600px;
+}
+
+/* This class initiates the obstacle movement via JS */
+.move-obstacle {
+    animation: obstacleMove 2s infinite linear;
+}
+
+@keyframes obstacleMove {
+    0% { left: 600px; }
+    100% { left: -40px; }
+}
+
+.instructions {
+    margin-top: 20px;
+    color: #aaaaaa;
+}
+
+.twist-alert {
+    color: #ffcc00;
+}
+
+/* ====== TWIST/GLITCH VISUAL STYLES ====== */
+
+/* Glitch 1: Screen Flash Dark */
+.glitch-dark {
+    background-color: #000000 !important;
+    border-color: #ff0055 !important;
+}
+
+/* Glitch 2: Upside Down World */
+.glitch-invert {
+    transform: scaleY(-1);
+}
