@@ -2,6 +2,9 @@
 
 A browser-based arcade game built with **HTML, CSS, and JavaScript**.
 
+<img width="1721" height="1040" alt="image" src="https://github.com/user-attachments/assets/62ca6663-3a23-410a-bdfc-18e78ac12ebc" />
+
+
 ## Overview
 
 Glitch Run is a personal web development project created to explore JavaScript game development and front-end programming. The game challenges players to survive by avoiding obstacles while achieving the highest score possible.
