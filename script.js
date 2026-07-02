@@ -3,22 +3,22 @@ const obstacle = document.getElementById("obstacle");
 const gameBox = document.getElementById("game-box");
 const scoreBoard = document.getElementById("score-board");
 const glitchWarning = document.getElementById("glitch-warning");
+const startBtn = document.getElementById("start-btn");
+const stopBtn = document.getElementById("stop-btn");
 
 let score = 0;
 let isJumping = false;
+let gameRunning = false;
+
 let gameInterval;
 let scoreInterval;
 let glitchInterval;
-let currentGlitch = "none";
 
-// Start the game loop elements
-obstacle.classList.add("move-obstacle");
-
-// 1. Handle Jumping Controls
+// ====== FIXED: Universal Spacebar Detection ======
 document.addEventListener("keydown", function(event) {
-    if (event.code === "Spacebar" || event.code === "Space") {
-        // If "Inverted Gravity" glitch is active, the controls switch to moving downward or custom logic,
-        // but to keep it simple, we handle standard jumping here if not already mid-jump.
+    // Checking for literal " " fixes compatibility across all modern web browsers
+    if ((event.key === " " || event.code === "Space") && gameRunning) {
+        event.preventDefault(); // Prevents the browser page from scrolling down when pressing space
         if (!isJumping) {
             jump();
         }
@@ -28,70 +28,104 @@ document.addEventListener("keydown", function(event) {
 function jump() {
     isJumping = true;
     player.classList.add("jump");
-    
-    // Remove the jump class after the animation finishes (500ms)
     setTimeout(function() {
         player.classList.remove("jump");
         isJumping = false;
     }, 500);
 }
 
-// 2. Track Score Increment
-scoreInterval = setInterval(() => {
-    score++;
-    scoreBoard.innerText = "Score: " + score;
-}, 100);
+// ====== NEW: Start Engine Logic ======
+startBtn.addEventListener("click", () => {
+    if (gameRunning) return;
+    
+    gameRunning = true;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    glitchWarning.innerText = "STATUS: STABLE";
+    glitchWarning.style.color = "#00ffcc";
+    
+    // Start obstacle moving animation
+    obstacle.classList.add("move-obstacle");
+    
+    // Start tracking score
+    scoreInterval = setInterval(() => {
+        score++;
+        scoreBoard.innerText = "Score: " + score;
+    }, 100);
+    
+    // Start real-time collision testing
+    startCollisionTracking();
+    
+    // Start Twist glitch loop
+    startGlitchEngine();
+});
 
-// 3. Real-time Collision Detection Loop
-gameInterval = setInterval(function() {
-    // Get current live positions of player and obstacle
-    let playerRect = player.getBoundingClientRect();
-    let obstacleRect = obstacle.getBoundingClientRect();
+// ====== NEW: Stop / Pause Engine Logic ======
+stopBtn.addEventListener("click", () => {
+    pauseGame("GAME PAUSED");
+});
 
-    // Check if the bounding boundaries overlap
-    if (
-        playerRect.right > obstacleRect.left &&
-        playerRect.left < obstacleRect.right &&
-        playerRect.bottom > obstacleRect.top &&
-        playerRect.top < obstacleRect.bottom
-    ) {
-        // Stop all animations and intervals on collision
-        obstacle.classList.remove("move-obstacle");
-        clearInterval(gameInterval);
-        clearInterval(scoreInterval);
-        clearInterval(glitchInterval);
-        
-        glitchWarning.innerText = "💥 SYSTEM CRASHED! GAME OVER 💥";
-        glitchWarning.style.color = "#ff0055";
-        alert("Game Over! Your Final Score: " + score);
-        location.reload(); // Reloads page to restart game
-    }
-}, 10);
-
-// 4. THE TWIST: Random Glitch Cycle Every 8 Seconds
-glitchInterval = setInterval(function() {
-    // Clear any previous glitch classes applied
+function pauseGame(message) {
+    gameRunning = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    
+    glitchWarning.innerText = message;
+    
+    // Stop animations and data intervals completely
+    obstacle.classList.remove("move-obstacle");
     gameBox.classList.remove("glitch-dark");
     document.body.classList.remove("glitch-invert");
     
-    // Pick a random event: 0 = Normal, 1 = Blackout, 2 = Screen Inversion
-    let randomEvent = Math.floor(Math.random() * 3);
+    clearInterval(gameInterval);
+    clearInterval(scoreInterval);
+    clearInterval(glitchInterval);
+}
 
-    if (randomEvent === 0) {
-        currentGlitch = "none";
-        glitchWarning.innerText = "STATUS: STABLE";
-        glitchWarning.style.color = "#00ffcc";
-    } 
-    else if (randomEvent === 1) {
-        currentGlitch = "blackout";
-        glitchWarning.innerText = "⚠️ GLITCH: TOTAL BLACKOUT! MEMORIZE THE RHYTHM! ⚠️";
-        glitchWarning.style.color = "#ff0055";
-        gameBox.classList.add("glitch-dark");
-    } 
-    else if (randomEvent === 2) {
-        currentGlitch = "invert";
-        glitchWarning.innerText = "⚠️ GLITCH: SPATIAL INVERSION! (UPSIDE DOWN) ⚠️";
-        glitchWarning.style.color = "#ffcc00";
-        document.body.classList.add("glitch-invert");
-    }
-}, 8000);
+// Collision tracking system
+function startCollisionTracking() {
+    gameInterval = setInterval(function() {
+        let playerRect = player.getBoundingClientRect();
+        let obstacleRect = obstacle.getBoundingClientRect();
+
+        if (
+            playerRect.right > obstacleRect.left &&
+            playerRect.left < obstacleRect.right &&
+            playerRect.bottom > obstacleRect.top &&
+            playerRect.top < obstacleRect.bottom
+        ) {
+            pauseGame("💥 SYSTEM CRASHED! GAME OVER 💥");
+            glitchWarning.style.color = "#ff0055";
+            alert("Game Over! Your Final Score: " + score);
+            
+            // Reset core system parameters
+            score = 0;
+            scoreBoard.innerText = "Score: 0";
+        }
+    }, 10);
+}
+
+// Glitch engine routine
+function startGlitchEngine() {
+    glitchInterval = setInterval(function() {
+        gameBox.classList.remove("glitch-dark");
+        document.body.classList.remove("glitch-invert");
+        
+        let randomEvent = Math.floor(Math.random() * 3);
+
+        if (randomEvent === 0) {
+            glitchWarning.innerText = "STATUS: STABLE";
+            glitchWarning.style.color = "#00ffcc";
+        } 
+        else if (randomEvent === 1) {
+            glitchWarning.innerText = "⚠️ GLITCH: TOTAL BLACKOUT! MEMORIZE THE RHYTHM! ⚠️";
+            glitchWarning.style.color = "#ff0055";
+            gameBox.classList.add("glitch-dark");
+        } 
+        else if (randomEvent === 2) {
+            glitchWarning.innerText = "⚠️ GLITCH: SPATIAL INVERSION! (UPSIDE DOWN) ⚠️";
+            glitchWarning.style.color = "#ffcc00";
+            document.body.classList.add("glitch-invert");
+        }
+    }, 8000);
+}
